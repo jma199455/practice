@@ -39,6 +39,13 @@ public class BoardServiceImpl implements BoardService{
 	  return boardMapper.updateBoard(board);
 	}
 
+	@Override
+	public int deleteBoard(int boardId) throws Exception {
+		return boardMapper.deleteBoard(boardId);
+	}
+
+	
+
 
     
 }

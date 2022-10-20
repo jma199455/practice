@@ -8,89 +8,78 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
   $(document).ready(function(){
+
+    // 목록버튼
     $('#list').on("click",function(){
       location.href="/board/boardList";
     });
 
-    console.log($(frm));
-
-    
+    // 수정버튼
     $('#edit').on("click",function(){
       var frm = $('#frm')[0];
 
-      //var title = $("#title").val();
-      //var contents = $("#contents").val();
+      var boardId = $("#boardId").val();
+      var title = $("#title").val();
+      var contents = $("#contents").val();
 
       var param = {
-                    boardId : $("#boardId").val(),
-                    title: $("#title").val(), 
-                    contents:$("#contents").val()
+                    boardId : boardId,
+                    title: title, 
+                    contents: contents
                   };
 
-      console.log(param);
-      console.log(JSON.stringify(param));
+      //console.log(param);
+      //console.log(JSON.stringify(param));
 
       $.ajax({
-            type:'POST',
-            data: JSON.stringify(param),
-            url:"/board/updateBoard",
-            dataType: "json",
-            contentType: "application/json",
-            success : function(data) {    
-                console.log(data);
-                alert("수정이 완료되었습니다.");
-                location.href="/board/boardList";
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                alert("ERROR : " + textStatus + " : " + errorThrown);
-            }        
+        type: 'POST',
+        data: JSON.stringify(param),
+        url: "/board/updateBoard",
+        dataType: "json",
+        contentType: "application/json",
+        success: function (data) {
+          console.log(data);
+          alert("수정이 완료되었습니다.");
+          location.href = "/board/boardList";
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          alert("ERROR : " + textStatus + " : " + errorThrown);
+        }
       })
 
-      //frm.action = "/board/updateBoard";
-      //frm.submit();
-
     });
-    
 
+    // 삭제버튼
     $('#delete').on("click",function(){
-      var frm = $('#frm')[0];
-      frm.action = "/board/deleteBoard";
-      frm.submit();
+
+      var url = "/board/deleteBoard"; // / 빼고 통신해보기
+      var boardId = $("#boardId").val();
+      //var boardId = 855;
+      var data = {
+                    boardId : boardId
+                };
+
+      var callback = function(data){
+          if(data >= 1) {
+            alert("삭제가 완료되었습니다.");
+            location.href = "/board/boardList";
+          } else {
+            alert("삭제가 실패되었습니다.");
+          }
+      }
+
+      ajaxRest(url, $.param(data), callback);
+
     });
 
 
-  /* 
-  	$('#frm').validate({
-		rules: {
-			title: {
-				required: true
-			},
-			contents:{
-				required: true
-			}
-		},
-		submitHandler : function(frm, e) {
-
-			e.preventDefault();
-			e.stopPropagation();
-
-      
-			cmmFormModify($(frm), '/board/updateBoard', function(data) {
-				var responseCode = data.header.responseCode;
-				if (200 == responseCode) {
-					bsFormAlert("팝업 수정이 완료되었습니다. <br> 목록으로 돌아가시겠습니까?", function() {
-						$(".btn-list").trigger("click");
-					});
-				} else if (921 == responseCode) {
-					bsAlert('선택한 기간에 노출 중인 팝업이 있습니다.<br/>노출기간은 중복 설정할 수 없습니다.');
-				}
-			});
-      
-		}
-	});
-  */
 
   });
+
+
+
+
+
 </script>
 
 
@@ -98,7 +87,7 @@
 <body>
   <div>
     <h2>게시글 상세 화면</h2>
-    <form id="frm" method="post">
+    <form id="frm" method="post" name="asd">
       <table>
         <colgroup>
           <col width="15%">

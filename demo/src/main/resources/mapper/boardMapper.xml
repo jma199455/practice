@@ -53,7 +53,12 @@
 	]]>
 	</update>
 
-
+	<delete id="deleteBoard" parameterType="int">
+		UPDATE t_board
+		SET is_deleted = 'Y'
+		WHERE board_id = #{item}
+	</delete>
+	
 
 
 </mapper>

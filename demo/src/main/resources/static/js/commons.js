@@ -1,8 +1,41 @@
+function ajaxRest(url, data, callback = false){
+
+	console.log(data);
+
+	$.ajax({
+        type: 'post',
+        data: data,
+        url: url,
+        dataType: "json",
+        success: function (data) {
+			if(callback) {
+				console.log(data);
+				// callback 반환
+				callback(data);
+			}
+          //alert(text + "완료되었습니다.");
+          //location.href = "/board/boardList";
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          alert("ERROR : " + textStatus + " : " + errorThrown);
+        }
+      })      
+
+
+}
+
+function ajaxRestJson(){
+
+}
+
+
+
+
+/*
 function cmmFormModify(_form, url, success) {
 	_ajaxFormSave('수정', _form, url, success);
 }
-
-/*  
+  
 function _ajaxFormSave(text, _form, url, success = false) {
 	var formdata = new FormData();
 	var $form = $(_form);

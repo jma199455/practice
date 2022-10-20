@@ -10,4 +10,6 @@ public interface BoardService {
     public int insertBoard(BoardDto board) throws Exception;
     public BoardDto getDetail(int boardId) throws Exception;
     public int updateBoard(BoardDto board) throws Exception;
+    public int deleteBoard(int boardId) throws Exception;
+    
 }
