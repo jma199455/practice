@@ -16,7 +16,7 @@ import com.example.demo.service.BoardService;
 
 @RestController
 @RequestMapping("board")
-public class BoardApiController {6
+public class BoardApiController {
 
     @Autowired
     private BoardService boardService;
