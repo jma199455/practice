@@ -36,7 +36,7 @@ public class BoardApiController {
     public void insertBoard(BoardDto board, HttpServletResponse response) throws Exception {
         System.out.println(board);
         int result = boardService.insertBoard(board);
-        response.sendRedirect("boardList"); // submit action으로 처리해서.
+        response.sendRedirect("boardList"); // submit action으로 처리해서..
     }    
 
     // ajax 처리
