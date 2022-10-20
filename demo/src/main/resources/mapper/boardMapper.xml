@@ -3,20 +3,37 @@
 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 												
 <mapper namespace="com.example.demo.mapper.BoardMapper">   <!-- mapper의 네임스페이스를 지정 인터페이스의 경로 -->
-	<!-- 쿼리 id 해당 (id를 이용하여 질의를 찾아 수행함), 실행 결과를 어떤 형식으로 반환할 것인지 -->
+
     <select id="selectBoardList" resultType="com.example.demo.dto.BoardDto"> 
 		<![CDATA[
 			SELECT 
-				row_number() over(order by created_At asc) rm, a.*
-			FROM (
-				SELECT 
+				row_number() over(order by created_At asc) rm,
 				board_id, title, hit_cnt, DATE_FORMAT(created_At, '%Y.%m.%d %H:%i:%s') as created_At, is_deleted
-				FROM t_board
-				) a
-			WHERE a.is_deleted='N'
+			FROM t_board
+			WHERE is_deleted='N'
 			ORDER BY rm desc
 		]]>
 	</select>
+
+	<!-- 인라인뷰로도 결과값 일치하는데 이유를 모르겠음 -->
+	<!--  
+    <select id="selectBoardList" resultType="com.example.demo.dto.BoardDto"> 
+		<![CDATA[
+            SELECT 
+                row_number() over(order by created_At asc) rm, a.*
+            FROM (
+                SELECT 
+                row_number() over(order by created_At asc) rm,
+                board_id, title, hit_cnt, DATE_FORMAT(created_At, '%Y.%m.%d %H:%i:%s') as created_At, is_deleted
+                FROM t_board
+                ) a
+            WHERE a.is_deleted='N'
+            FROM t_board
+            WHERE is_deleted='N'
+            ORDER BY rm desc
+		]]>
+	</select>
+	-->
 
 	<insert id="insertBoard" parameterType="com.example.demo.dto.BoardDto">
 	<![CDATA[

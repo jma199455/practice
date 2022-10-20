@@ -31,14 +31,15 @@ public class BoardApiController {
       return resultBuilder.resultForObjectAll(boardService.selectBoardList());
     }   
     */
-    
+    // submit action으로 처리
     @PostMapping("insertBoard")
     public void insertBoard(BoardDto board, HttpServletResponse response) throws Exception {
         System.out.println(board);
         int result = boardService.insertBoard(board);
-        response.sendRedirect("boardList");
+        response.sendRedirect("boardList"); // submit action으로 처리해서
     }    
 
+    // ajax 처리
     @PostMapping("updateBoard") // 수정요청
     public int updateBoard(@RequestBody BoardDto board) throws Exception {
         System.out.println(board.getTitle());
@@ -47,6 +48,7 @@ public class BoardApiController {
         return result; // 게시글 수정
     }
 
+    // ajax callback함수처리
     @PostMapping("deleteBoard")
     public int deleteBoard(@RequestParam int boardId) throws Exception{
         return boardService.deleteBoard(boardId);
