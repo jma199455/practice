@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+												
+<mapper namespace="com.example.demo.mapper.UsersMapper"> 
+
+
+    <!-- 인터셉터 후 세션에 등록 -->
+    <select id="usersLogin" parameterType="com.example.demo.dto.UsersVO" resultType="com.example.demo.dto.UsersVO">
+        select *  from users
+        where id = #{id} and pw = #{pw}
+    </select>
+
+    <select id="getUserInfo" parameterType="com.example.demo.dto.UsersVO" resultType="com.example.demo.dto.UsersVO">
+        select *  from users
+        where id = #{id} and pw = #{pw}
+    </select>
+
+
+
+
+
+
+
+</mapper>

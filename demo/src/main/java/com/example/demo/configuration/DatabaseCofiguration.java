@@ -19,7 +19,7 @@ public class DatabaseCofiguration {
 
         return DataSourceBuilder.create().build();
     }
-
+    
     @Bean
     public SqlSessionFactory firstSqlSessionFactory(DataSource firstDataSource, ApplicationContext applicationContext) throws Exception {
 

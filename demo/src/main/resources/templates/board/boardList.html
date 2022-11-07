@@ -1,44 +1,252 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <link rel="stylesheet" th:href="@{/css/board.css}"/>
+<!-- <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script> -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css"></script> -->
+
+<!-- datepicker사용(CDN)-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"/>
+<style>
+.form-control.form-date{width:150px;}  
+</style>
+<script th:inline="javascript">
+
+
+
+  var baseURI = '/board/';
+  var listUrl = "/api/board/boardlist";
+  var temp;
+
+  $(document).ready(function(){
+
+    // list api 호출 ajax 처리
+    ajaxList(listUrl, getList);
+
+
+  $.datepicker.setDefaults({
+    dateFormat: 'yy-mm-dd',
+    prevText: '이전 달',
+    nextText: '다음 달',
+    monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+    monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+    dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+    dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+    dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+    showMonthAfterYear: true,
+    yearSuffix: '년'
+  });
+
+  $('.datepicker').datepicker();
+
+  // 검색 폼 리셋
+  $('.btn-reset').click(function(){
+      $('#search')[0].reset();
+  });
+
+
+  $('.btn-search').click(function(){
+    var form = $('#search')[0].id;
+
+    // 검색결과 list 출력
+    searchFormAjaxList(listUrl, form ,getList);
+    
+    //action form 으로 넘겨보기 View 어떻게 보여줄지 ..
+    // $("#search").attr("action", "/api/board/boardlist");  
+    // $("#search").submit();
+    
+  });
+
+
+});
+
+/*  
+this사용해서 해당 태그 value 가져옴 (hidden 값 userId)
+아래 html 사용했을 경우
+<td class="title"> 
+  <a href="#" class="titleData" th:text="${list.title}" th:titleValue="${list.boardId}" th:onclick="titleDetail(this)"></a>
+  <input type="hidden" class="momo" name="titleId" th:value="${list.boardId}"> 
+</td>
+*/
+/*  
+function titleDetail(e) {
+  console.log($(e).text());
+  console.log($(e).siblings().val());
+  var userId = $(e).siblings().val();
+  location.href = baseURI + "openBoardDetail/" + userId;
+}
+*/
+
+function titleDetail(userId) {
+  location.href = baseURI + "openBoardDetail/" + userId;
+}
+
+//게시판 리스트를 호출
+function ajaxList(url, callbackFunction = false) {
+  		
+		$.ajax({
+			url : url,
+			type : "get",
+			//data : 넘길게없다.
+      dataType : "json",
+      success: function (data) {
+          if(callbackFunction) {
+            callbackFunction(data);
+          }
+      },
+			error : function () {alert("error");}
+		});
+}
+
+//게시판 검색결과 리스트 호출(/api/board/boardlist)
+function searchFormAjaxList(url, form ,callbackFunction = false) {
+  		
+    var $form = $('#' + form);
+    //console.log($form.serializeArray()); 둘다 data로 사용가능
+    //console.log($form.serialize());      둘다 data로 사용가능
+
+    var data = $form.serializeArray();
+
+		$.ajax({
+			url : url,
+			type : "get",
+			data : data,
+      dataType : "json",
+      success: function (data) {
+        console.log(data); // 리스트 검색 결과
+        var count = Object.keys(data).length; // success 에서 count로 if문 걸어줄 때 사용 data.length 사용 못함.. callback으로 data 넘겨서는 length로 확인 가능.
+        //console.log(count);
+          if(callbackFunction) {
+              callbackFunction(data);
+          } 
+      },
+			error : function () {alert("error");}
+		});
+}
+
+function getList(data) {
+
+  $("#showList").empty(); // 리스트 초기화
+
+  if(data.length > 0) {
+    $.each(data, function (index, item) {
+      var result = "";
+      result += "<tr>";
+      result += "<td>" + item.rm + "</td>";
+      //result += "<td>" + item.title + "</td>";
+      //result += `<td><a href="#" class="titleData" onclick="titleDetail(${item.boardId})">${item.title}</a></td>`;  onclick 이벤트 사용했을 때 
+      result += `<td><a href="javascript:titleDetail(${item.boardId});" class="titleData">${item.title}</a></td>`;  // <a> href 사용할 때 javascript:함수이름 작성
+      result += "<td>" + item.hitCnt + "</td>";
+      result += "<td>" + item.createdAt + "</td>";
+      result += "<td>" + item.isDeleted + "</td>";
+      result += `<td><a href="/board/openBoardDetail/${item.boardId}" class="btn" style="background-color: darkgrey;">수정</a></td>`;
+      result += "</tr>";
+      $('#showList').append(result);
+    });
+  }else {
+    var result = "";
+    result += "<tr>";
+    result += `<td colspan="5" align="center">게시글이 없습니다.</td>`;
+    result += "</tr>";
+    $('#showList').append(result);
+  }
+  
+}
+
+</script>
 </head>
+
+
 <body>
   <div class="container">
-  <h2>게시판 목록</h2>
+      <h2>게시판 목록</h2>
+      <div class="topMenu" style="text-align: right;">
+        <ul style="list-style:none;">
+          <li class="first"><span style="font-weight: bold;">[[${data.userName}]]님 </span><a href="/logout" class="btn">로그아웃</a></li>
+        </ul>
+      </div>
+
+      <form id="search" th:object="${params}">
+        <div class="searchBox">
+          <div>
+            <b>검색어 : </b>
+            <input type="text" th:field="*{keyword}">&nbsp;
+            <b>기간 검색 : </b>
+            <input type="text" class="form-control form-date datepicker" th:field="*{startDt}" placeholder="시작일">
+            <span class="input-group-text">~</span>
+            <input type="text" class="form-control form-date datepicker" th:field="*{endDt}" placeholder="종료일">
+            <span>
+              <b>노출여부 : </b>
+              <select th:field="*{isDeleted}">
+                <option value="">선택해주세요</option>
+                <option value="N">노출</option>
+                <option value="Y">미노출</option>
+              </select>
+            </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button type="button" class="btn btn-search">검색</button>
+            <button type="button" class="btn btn-reset">초기화</button>
+          </div>
+        </div>
+      </form>
+      
     <table class="board_list">
       <colgroup>
-        <col width="15%"/>
-        <col width="*"/>
-        <col width="15%"/>
-        <col width="20%"/>
+        <col width="15%" />
+        <col width="*" />
+        <col width="15%" />
+        <col width="20%" />
+        <col width="8%" />
+        <col width="8%" />
       </colgroup>
-      <thead>
-        <tr>
-          <th scope="col">글번호</th>
-          <th scope="col">제목</th>
-          <th scope="col">조회수</th>
-          <th scope="col">작성일</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:if="${#lists.size(list)} > 0" th:each="list:${list}">
+    
+ 
+        <thead>
+          <tr>
+            <th scope="col">글번호</th>
+            <th scope="col">제목</th>
+            <th scope="col">조회수</th>
+            <th scope="col">작성일</th>
+            <th scope="col">노출여부</th>
+            <th scope="col">수정</th>
+          </tr>
+        </thead>
+        <tbody id="showList">
+        </tbody>
+    </table>
+    <a href="/board/openBoardWrite" class="btn">글 쓰기</a>
+    <input type="hidden" name="userId" id="userId" th:value="${data.userName}"> 
+
+
+
+      
+   
+
+  
+
+
+
+
+      <!--  
+      <tbody th:each="list:${list}">   
+        <tr th:if="${#lists.size(list)} > 0">
           <td th:text="${list.rm}"></td>
           <td class="title">
-              <!-- <a href="openBoardDetail?boardId=" th:attrappend="href=${list.boardId}" th:text="${list.title}"></a> @RequestParam로 받을 때-->
-              <a href="openBoardDetail/" th:attrappend="href=${list.boardId}" th:text="${list.title}"></a>
+              <a href="#" class="titleData" th:text="${list.title}" th:titleValue="${list.boardId}" th:onclick="titleDetail(this)"></a>
+              <input type="hidden" class="momo" name="titleId" th:value="${list.boardId}"> 
           </td>
           <td th:text="${list.hitCnt}"></td>
           <td th:text="${list.createdAt}"></td>
+          <td><a href="/board/openBoardDetail/" th:attrappend="href=${list.boardId}" class="btn" style="background-color: darkgrey;">수정</a></td>
         </tr>
         <tr th:unless="${#lists.size(list)} > 0">
           <td colspan="4">조회된 결과가 없습니다.</td>
         </tr>
       </tbody>
-    </table>
-    <a href="openBoardWrite" class="btn">글 쓰기</a>
+      -->
   </div>
 </body>
 </html>

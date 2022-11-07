@@ -4,21 +4,7 @@
 												
 <mapper namespace="com.example.demo.mapper.BoardMapper">   <!-- mapper의 네임스페이스를 지정 인터페이스의 경로 -->
 
-    <select id="selectBoardList" resultType="com.example.demo.dto.BoardDto"> 
-		<![CDATA[
-			SELECT 
-				row_number() over(order by created_At asc) rm,
-				board_id, title, hit_cnt, DATE_FORMAT(created_At, '%Y.%m.%d %H:%i:%s') as created_At, is_deleted
-			FROM t_board
-			WHERE is_deleted='N'
-			ORDER BY rm desc
-		]]>
-	</select>
-
-	<!-- 인라인뷰로도 결과값 일치하는데 이유를 모르겠음 -->
-	<!--  
-    <select id="selectBoardList" resultType="com.example.demo.dto.BoardDto"> 
-		<![CDATA[
+    <select id="selectBoardList" parameterType="map" resultType="com.example.demo.dto.BoardDto"> 
             SELECT 
                 row_number() over(order by created_At asc) rm, a.*
             FROM (
@@ -27,13 +13,78 @@
                 board_id, title, hit_cnt, DATE_FORMAT(created_At, '%Y.%m.%d %H:%i:%s') as created_At, is_deleted
                 FROM t_board
                 ) a
-            WHERE a.is_deleted='N'
-            FROM t_board
-            WHERE is_deleted='N'
-            ORDER BY rm desc
-		]]>
+				WHERE 1=1
+				<if test="params.keyword != null">
+					and title LIKE CONCAT('%', #{params.keyword}, '%')
+				</if>	
+				<!-- MybatisUtils 함수 적용해보기 -->
+				<if test="@com.example.demo.core.mybatis.util.MybatisUtils@isNotEmpty(params.startDt) and @com.example.demo.core.mybatis.util.MybatisUtils@isNotEmpty(params.endDt)">
+					and created_At BETWEEN #{params.startDt} AND DATE_ADD(#{params.endDt}, interval 1 day)
+				</if>	
+				<!-- 유틸함수 적용 안했을 때  -->
+				<!--  
+				<if test="search.startDt != null and !search.startDt.equals('') and search.endDt != null and !search.endDt.equals('')">
+					and created_At BETWEEN #{search.startDt} AND DATE_ADD(#{search.endDt}, interval 1 day)
+				</if>
+				--> 				
+				<if test="params.isDeleted != null and !params.isDeleted.equals('')">
+					and is_deleted = #{params.isDeleted}
+				</if>
+				ORDER BY rm desc
 	</select>
-	-->
+
+<!-- 인라인뷰로 rm 사용하지 않아서 리스트 순서 이상하게 나옴! -->
+<!--  
+	<select id="selectBoardList" parameterType="map" resultType="com.example.demo.dto.BoardDto"> 
+			SELECT 
+				row_number() over(order by created_At asc) rm,
+				board_id, 
+				title, 
+				hit_cnt, 
+				DATE_FORMAT(created_At, '%Y.%m.%d') as created_At, 
+				is_deleted
+			FROM t_board
+			WHERE 1=1
+			<if test="search.keyword != null">
+				and title LIKE CONCAT('%', #{search.keyword}, '%')
+			</if>
+			<if test="@com.example.demo.core.mybatis.util.MybatisUtils@isNotEmpty(search.startDt) and @com.example.demo.core.mybatis.util.MybatisUtils@isNotEmpty(search.endDt)">
+				and created_At BETWEEN #{search.startDt} AND DATE_ADD(#{search.endDt}, interval 1 day)
+			</if>
+			<if test="search.isDeleted != null and !search.isDeleted.equals('')">
+				and is_deleted = #{search.isDeleted}
+			</if>
+			ORDER BY rm desc
+	</select>	
+-->
+
+
+    <!-- 게시글 수 카운팅 -->
+    <select id="count" parameterType="map" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            t_board
+		WHERE 1=1
+		<if test="params.keyword != null">
+			and title LIKE CONCAT('%', #{params.keyword}, '%')
+		</if>
+		<if test="@com.example.demo.core.mybatis.util.MybatisUtils@isNotEmpty(params.startDt) and @com.example.demo.core.mybatis.util.MybatisUtils@isNotEmpty(params.endDt)">
+			and created_At BETWEEN #{params.startDt} AND DATE_ADD(#{params.endDt}, interval 1 day)
+		</if>
+		<if test="params.isDeleted != null and !params.isDeleted.equals('')">
+			and is_deleted = #{params.isDeleted}
+		</if>		
+    </select>
+
+
+
+
+
+
+
+
+
 
 	<insert id="insertBoard" parameterType="com.example.demo.dto.BoardDto">
 	<![CDATA[

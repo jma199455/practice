@@ -3,10 +3,10 @@ package com.example.demo.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.BoardDto;
+import com.example.demo.dto.SearchDto;
 import com.example.demo.mapper.BoardMapper;
 
 @Service
@@ -16,9 +16,12 @@ public class BoardServiceImpl implements BoardService{
 	BoardMapper boardMapper;
 
 	@Override
-	public List<BoardDto> selectBoardList() throws Exception {
+	public List<BoardDto> selectBoardList(SearchDto params) throws Exception {
 		
-		return boardMapper.selectBoardList();
+		// 게시글 수
+		int count  = boardMapper.count(params);
+
+		return boardMapper.selectBoardList(params);
 	}
 
 	@Override
@@ -42,6 +45,11 @@ public class BoardServiceImpl implements BoardService{
 	@Override
 	public int deleteBoard(int boardId) throws Exception {
 		return boardMapper.deleteBoard(boardId);
+	}
+
+	@Override
+	public int count(SearchDto search) throws Exception {
+		return boardMapper.count(search);
 	}
 
 	

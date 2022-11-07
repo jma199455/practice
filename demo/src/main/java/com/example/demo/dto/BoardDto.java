@@ -14,5 +14,7 @@ public class BoardDto {
 	private String creatorId;
 	private String updatedAt;
 	private String updaterId;  
+	private String isDeleted;
+	private String userName;
 
 }

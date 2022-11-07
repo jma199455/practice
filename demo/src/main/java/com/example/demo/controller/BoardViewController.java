@@ -1,34 +1,46 @@
 package com.example.demo.controller;
 
-import java.util.List;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.dto.BoardDto;
+import com.example.demo.dto.SearchDto;
+import com.example.demo.dto.UsersVO;
 import com.example.demo.service.BoardService;
+import com.example.demo.service.UsersService;
 
 @Controller
 @RequestMapping("board")
 public class BoardViewController {
-
+    
     @Autowired
     private BoardService boardService;
 
-    @RequestMapping("/boardList")
-    public ModelAndView openBoardList() throws Exception {
+    @Autowired UsersService usersService;
+
+    @RequestMapping("boardList")
+    public ModelAndView openBoardList(HttpSession session, @ModelAttribute("params") SearchDto params) throws Exception {
+
+      System.out.println("뷰 Controller ==============>" + params);
       ModelAndView mv = new ModelAndView("board/boardList");
-      mv.addObject("list",boardService.selectBoardList());
+
+      UsersVO rs = (UsersVO) session.getAttribute("login");
+      mv.addObject("data", rs);
+
+      //mv.addObject("list",boardService.selectBoardList(search));
       //List<BoardDto> list = boardService.selectBoardList();
       //System.out.println(list);
       return mv;
     }
 
-    @RequestMapping("/openBoardWrite")
+    @RequestMapping("openBoardWrite")
     public ModelAndView openBoardWrite() {
       ModelAndView mv = new ModelAndView("board/boardWrite");
       mv.addObject("data", new BoardDto()); // dto를 model객체로 view에 보내지 않아도 가능
